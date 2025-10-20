@@ -442,3 +442,31 @@ footer {
         padding: 10px 15px;
     }
 }
+
+/* Info Box - คำเตือนเวลารอ */
+.info-box {
+    background: #fff3e0;
+    border-left: 4px solid #ff9800;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 8px;
+    animation: fadeIn 0.5s ease;
+}
+
+.info-box p {
+    line-height: 1.6;
+}
+
+/* Error Box - ปรับให้รองรับ HTML */
+.error-box p {
+    line-height: 1.8;
+}
+
+.error-box a {
+    color: white;
+    text-decoration: underline;
+}
+
+.error-box a:hover {
+    color: #ffeb3b;
+}

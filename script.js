@@ -7,8 +7,8 @@ const resultSection = document.getElementById('resultSection');
 const errorSection = document.getElementById('errorSection');
 const errorMessage = document.getElementById('errorMessage');
 
-// URL ของ Backend
-const API_URL = 'https://aicoin-backend-1.onrender.com/detect';
+// ⚠️ เปลี่ยน URL นี้ให้ตรงกับ Backend ของคุณ
+const API_URL = 'https://aicoin-backend-1.onrender.com//detect';
 
 // เมื่อเลือกไฟล์
 imageInput.addEventListener('change', function(e) {
@@ -66,7 +66,7 @@ uploadBox.addEventListener('click', function() {
     imageInput.click();
 });
 
-// ฟังก์ชันนับเหรียญ
+// ฟังก์ชันนับเหรียญ (เพิ่ม Timeout เป็น 2 นาที)
 async function detectCoins() {
     const file = imageInput.files[0];
     
@@ -96,11 +96,17 @@ async function detectCoins() {
     formData.append('image', file);
     
     console.log('📤 กำลังส่ง Request ไปที่:', API_URL);
+    console.log('⏳ กรุณารอสักครู่... (อาจใช้เวลา 30-60 วินาที ครั้งแรก)');
     
     try {
-        // ตั้ง Timeout 30 วินาที
+        // เพิ่ม Timeout เป็น 150 วินาที (2 นาที 30 วินาที)
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        const timeoutId = setTimeout(() => controller.abort(), 150000); // 150 วินาที
+        
+        // แสดงข้อความเตือนถ้ารอนาน
+        let warningTimeout = setTimeout(() => {
+            console.log('⏰ กำลังรอ Backend ตื่น... กรุณารอสักครู่');
+        }, 10000); // 10 วินาที
         
         // ส่งข้อมูลไปที่ Backend
         const response = await fetch(API_URL, {
@@ -110,6 +116,7 @@ async function detectCoins() {
         });
         
         clearTimeout(timeoutId);
+        clearTimeout(warningTimeout);
         
         console.log('📥 ได้รับ Response:', response.status, response.statusText);
         
@@ -138,14 +145,26 @@ async function detectCoins() {
         console.error('❌ Error:', error);
         
         if (error.name === 'AbortError') {
-            showError('⏱️ หมดเวลา (Timeout)<br><br>การประมวลผลใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง');
+            showError(
+                '⏱️ หมดเวลา (Timeout)<br><br>' +
+                'การประมวลผลใช้เวลานานเกินไป (เกิน 2 นาที)<br><br>' +
+                '<strong>สาเหตุที่เป็นไปได้:</strong><br>' +
+                '• Backend กำลังตื่นจากการหลับ (ครั้งแรกใช้เวลา 30-60 วินาที)<br>' +
+                '• รูปภาพมีขนาดใหญ่เกินไป<br>' +
+                '• Server มีปัญหา<br><br>' +
+                '<strong>วิธีแก้:</strong><br>' +
+                '1️⃣ รอ 1 นาที แล้วลองใหม่อีกครั้ง<br>' +
+                '2️⃣ ใช้รูปขนาดเล็กลง (< 2MB)<br>' +
+                '3️⃣ ลอง Refresh หน้าเว็บ'
+            );
         } else if (error.message.includes('Failed to fetch')) {
             showError(
                 '🔌 ไม่สามารถเชื่อมต่อกับ Server ได้<br><br>' +
                 'กรุณาตรวจสอบว่า:<br>' +
-                '1️⃣ Backend กำลังทำงานอยู่ (python app.py)<br>' +
-                '2️⃣ Server อยู่ที่ ' + API_URL.replace('/detect', '') + '<br>' +
-                '3️⃣ ไม่มี Firewall หรือ Antivirus บล็อก'
+                '1️⃣ Backend กำลังทำงานอยู่<br>' +
+                '2️⃣ URL: ' + API_URL.replace('/detect', '') + '<br>' +
+                '3️⃣ ไม่มี Firewall บล็อก<br><br>' +
+                '<a href="' + API_URL.replace('/detect', '') + '" target="_blank" style="color: white; text-decoration: underline;">คลิกเพื่อเช็ค Backend</a>'
             );
         } else {
             showError('❌ เกิดข้อผิดพลาด:<br><br>' + error.message);
@@ -252,7 +271,7 @@ function animateCount(target, element) {
 // เช็คสถานะ Backend เมื่อโหลดหน้าเว็บ
 window.addEventListener('load', async function() {
     try {
-        const response = await fetch('http://localhost:5000/');
+        const response = await fetch(API_URL.replace('/detect', ''));
         if (response.ok) {
             console.log('✅ เชื่อมต่อ Backend สำเร็จ');
         }
