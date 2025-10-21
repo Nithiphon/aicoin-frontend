@@ -8,7 +8,7 @@ const errorSection = document.getElementById('errorSection');
 const errorMessage = document.getElementById('errorMessage');
 
 // ⚠️ เปลี่ยน URL นี้ให้ตรงกับ Backend ของคุณ
-const API_URL = 'https://aicoin-backend-1.onrender.com/detect';
+const API_URL = 'https://aicoin-backend-3.onrender.com//detect';
 
 // เมื่อเลือกไฟล์
 imageInput.addEventListener('change', function(e) {
@@ -134,9 +134,9 @@ async function detectCoins() {
     console.log('📤 กำลังส่ง Request ไปที่:', API_URL);
     
     try {
-        // เพิ่ม Timeout เป็น 180 วินาที (3 นาที)
+        // เพิ่ม Timeout เป็น 300 วินาที (5 นาที)
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 180000);
+        const timeoutId = setTimeout(() => controller.abort(), 300000);
         
         // ส่งข้อมูลไปที่ Backend
         const response = await fetch(API_URL, {
