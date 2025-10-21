@@ -8,7 +8,7 @@ const errorSection = document.getElementById('errorSection');
 const errorMessage = document.getElementById('errorMessage');
 
 // ⚠️ เปลี่ยน URL นี้ให้ตรงกับ Backend ของคุณ
-const API_URL = 'https://aicoin-backend-1.onrender.com//detect';
+const API_URL = 'https://aicoin-backend-1.onrender.com/detect';
 
 // เมื่อเลือกไฟล์
 imageInput.addEventListener('change', function(e) {
@@ -18,6 +18,12 @@ imageInput.addEventListener('change', function(e) {
         // ตรวจสอบว่าเป็นไฟล์รูปภาพหรือไม่
         if (!file.type.startsWith('image/')) {
             showError('กรุณาเลือกไฟล์รูปภาพเท่านั้น (JPG, PNG, JPEG)');
+            return;
+        }
+        
+        // ตรวจสอบขนาดไฟล์ (ไม่เกิน 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showError('ไฟล์รูปใหญ่เกินไป (เกิน 5MB)<br>กรุณาเลือกรูปขนาดเล็กกว่า');
             return;
         }
         
@@ -66,7 +72,27 @@ uploadBox.addEventListener('click', function() {
     imageInput.click();
 });
 
-// ฟังก์ชันนับเหรียญ (เพิ่ม Timeout เป็น 2 นาที)
+// ฟังก์ชัน Ping Backend เพื่อปลุก (ถ้าหลับ)
+async function wakeUpBackend() {
+    try {
+        console.log('🔔 กำลังปลุก Backend...');
+        const response = await fetch(API_URL.replace('/detect', ''), {
+            method: 'GET',
+            signal: AbortSignal.timeout(10000) // timeout 10 วินาที
+        });
+        
+        if (response.ok) {
+            console.log('✅ Backend ตื่นแล้ว!');
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.log('⏰ Backend กำลังตื่น... รอซักครู่');
+        return false;
+    }
+}
+
+// ฟังก์ชันนับเหรียญ (เวอร์ชันปรับปรุง)
 async function detectCoins() {
     const file = imageInput.files[0];
     
@@ -91,38 +117,44 @@ async function detectCoins() {
     resultSection.style.display = 'none';
     errorSection.style.display = 'none';
     
+    console.log('⏳ ขั้นตอนที่ 1/2: ตรวจสอบสถานะ Backend...');
+    
+    // ลอง Ping Backend ก่อน
+    await wakeUpBackend();
+    
+    // รอ 2 วินาทีให้ Backend พร้อม
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    console.log('⏳ ขั้นตอนที่ 2/2: ส่งรูปภาพ...');
+    
     // เตรียมข้อมูลส่ง
     const formData = new FormData();
     formData.append('image', file);
     
     console.log('📤 กำลังส่ง Request ไปที่:', API_URL);
-    console.log('⏳ กรุณารอสักครู่... (อาจใช้เวลา 30-60 วินาที ครั้งแรก)');
     
     try {
-        // เพิ่ม Timeout เป็น 150 วินาที (2 นาที 30 วินาที)
+        // เพิ่ม Timeout เป็น 180 วินาที (3 นาที)
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 150000); // 150 วินาที
-        
-        // แสดงข้อความเตือนถ้ารอนาน
-        let warningTimeout = setTimeout(() => {
-            console.log('⏰ กำลังรอ Backend ตื่น... กรุณารอสักครู่');
-        }, 10000); // 10 วินาที
+        const timeoutId = setTimeout(() => controller.abort(), 180000);
         
         // ส่งข้อมูลไปที่ Backend
         const response = await fetch(API_URL, {
             method: 'POST',
             body: formData,
-            signal: controller.signal
+            signal: controller.signal,
+            mode: 'cors',
+            credentials: 'omit'
         });
         
         clearTimeout(timeoutId);
-        clearTimeout(warningTimeout);
         
         console.log('📥 ได้รับ Response:', response.status, response.statusText);
         
         // ตรวจสอบ HTTP Status
         if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
         
         // แปลง Response เป็น JSON
@@ -147,27 +179,33 @@ async function detectCoins() {
         if (error.name === 'AbortError') {
             showError(
                 '⏱️ หมดเวลา (Timeout)<br><br>' +
-                'การประมวลผลใช้เวลานานเกินไป (เกิน 2 นาที)<br><br>' +
-                '<strong>สาเหตุที่เป็นไปได้:</strong><br>' +
-                '• Backend กำลังตื่นจากการหลับ (ครั้งแรกใช้เวลา 30-60 วินาที)<br>' +
-                '• รูปภาพมีขนาดใหญ่เกินไป<br>' +
-                '• Server มีปัญหา<br><br>' +
-                '<strong>วิธีแก้:</strong><br>' +
-                '1️⃣ รอ 1 นาที แล้วลองใหม่อีกครั้ง<br>' +
-                '2️⃣ ใช้รูปขนาดเล็กลง (< 2MB)<br>' +
-                '3️⃣ ลอง Refresh หน้าเว็บ'
+                'การประมวลผลใช้เวลานานเกินไป (เกิน 3 นาที)<br><br>' +
+                '<strong>💡 คำแนะนำ:</strong><br>' +
+                '1️⃣ <strong>รอ 1-2 นาที</strong> แล้วลองใหม่อีกครั้ง (Backend อาจกำลังตื่น)<br>' +
+                '2️⃣ ลดขนาดรูปภาพให้เล็กกว่า 2MB<br>' +
+                '3️⃣ Refresh หน้าเว็บ (F5) แล้วลองใหม่<br><br>' +
+                '<a href="' + API_URL.replace('/detect', '') + '" target="_blank" style="color: #4CAF50; font-weight: bold;">🔗 คลิกตรวจสอบสถานะ Backend</a>'
             );
-        } else if (error.message.includes('Failed to fetch')) {
+        } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
             showError(
-                '🔌 ไม่สามารถเชื่อมต่อกับ Server ได้<br><br>' +
-                'กรุณาตรวจสอบว่า:<br>' +
-                '1️⃣ Backend กำลังทำงานอยู่<br>' +
-                '2️⃣ URL: ' + API_URL.replace('/detect', '') + '<br>' +
-                '3️⃣ ไม่มี Firewall บล็อก<br><br>' +
-                '<a href="' + API_URL.replace('/detect', '') + '" target="_blank" style="color: white; text-decoration: underline;">คลิกเพื่อเช็ค Backend</a>'
+                '🔌 ไม่สามารถเชื่อมต่อกับ Backend ได้<br><br>' +
+                '<strong>สาเหตุที่เป็นไปได้:</strong><br>' +
+                '1️⃣ Backend กำลังหลับ (ครั้งแรกต้องรอ 30-60 วินาที)<br>' +
+                '2️⃣ เครือข่ายมีปัญหา<br>' +
+                '3️⃣ Backend มี Error<br><br>' +
+                '<strong>💡 วิธีแก้:</strong><br>' +
+                '• <strong>รอ 1 นาที แล้วลองใหม่</strong><br>' +
+                '• เช็คว่า Backend ทำงานหรือไม่: <a href="' + API_URL.replace('/detect', '') + '" target="_blank" style="color: #4CAF50; font-weight: bold;">คลิกที่นี่</a><br>' +
+                '• ลอง Refresh หน้าเว็บ (F5)'
             );
         } else {
-            showError('❌ เกิดข้อผิดพลาด:<br><br>' + error.message);
+            showError(
+                '❌ เกิดข้อผิดพลาด<br><br>' +
+                '<code style="background: #f5f5f5; padding: 10px; display: block; border-radius: 5px; color: #d32f2f;">' + 
+                error.message + 
+                '</code><br>' +
+                '<a href="' + API_URL.replace('/detect', '') + '" target="_blank" style="color: #4CAF50;">ตรวจสอบ Backend</a>'
+            );
         }
     } finally {
         // คืนสถานะปุ่ม
@@ -179,7 +217,7 @@ async function detectCoins() {
     }
 }
 
-// ฟังก์ชันแสดงผลลัพธ์ (เวอร์ชันอัปเกรด)
+// ฟังก์ชันแสดงผลลัพธ์
 function showResult(data) {
     console.log('📺 กำลังแสดงผลลัพธ์...');
     
@@ -254,7 +292,7 @@ function resetPage() {
 function animateCount(target, element) {
     let current = 0;
     const increment = target / 30;
-    const duration = 1000; // 1 วินาที
+    const duration = 1000;
     const stepTime = duration / 30;
     
     const timer = setInterval(() => {
@@ -271,11 +309,13 @@ function animateCount(target, element) {
 // เช็คสถานะ Backend เมื่อโหลดหน้าเว็บ
 window.addEventListener('load', async function() {
     try {
-        const response = await fetch(API_URL.replace('/detect', ''));
+        const response = await fetch(API_URL.replace('/detect', ''), {
+            signal: AbortSignal.timeout(5000)
+        });
         if (response.ok) {
             console.log('✅ เชื่อมต่อ Backend สำเร็จ');
         }
     } catch (error) {
-        console.warn('⚠️ ไม่สามารถเชื่อมต่อ Backend ได้ กรุณาเปิด Backend ก่อน');
+        console.warn('⚠️ ไม่สามารถเชื่อมต่อ Backend ได้ (อาจกำลังหลับ)');
     }
 });
