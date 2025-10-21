@@ -8,7 +8,7 @@ const errorSection = document.getElementById('errorSection');
 const errorMessage = document.getElementById('errorMessage');
 
 // ⚠️ เปลี่ยน URL นี้ให้ตรงกับ Backend ของคุณ
-const API_URL = 'https://test-coin-backend.onrender.com/detect';
+const API_URL = 'https://test-coin-backend-2.onrender.com/detect';
 
 // เมื่อเลือกไฟล์
 imageInput.addEventListener('change', function(e) {
