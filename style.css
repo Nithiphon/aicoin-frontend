@@ -5,9 +5,29 @@
     box-sizing: border-box;
 }
 
+/* Design tokens: Sand + Sage green palette */
+:root {
+    --sand-50: #f7f0d8;
+    --sand-100: #efe3bf;
+    --sage-50: #e7f0dc;
+    --sage-100: #cfe4b3;
+    --sage-300: #9dc081;
+    --sage-500: #6e9b59;
+    --sage-700: #3e6f3f;
+    --sage-900: #1f4d2c;
+    --text-900: #21312a;
+    --text-700: #3a4a43;
+    --white: #ffffff;
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.18);
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.12);
+    --radius-lg: 20px;
+    --radius-md: 15px;
+    --radius-sm: 10px;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(180deg, var(--sand-50) 0%, var(--sage-50) 100%);
     min-height: 100vh;
     padding: 20px;
     display: flex;
@@ -18,23 +38,35 @@ body {
 .container {
     max-width: 800px;
     width: 100%;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
     padding: 40px;
     margin: 20px 0;
     animation: fadeIn 0.5s ease-in;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+}
+
+.pane {
+    background: var(--white);
+    border: 1px solid rgba(33, 49, 42, 0.08);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 20px;
+}
+
+/* Desktop breakpoint */
+@media (min-width: 900px) {
+    .container { max-width: 1100px; }
+    .main-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
 }
 
 /* Header */
@@ -44,13 +76,13 @@ header {
 }
 
 h1 {
-    color: #333;
+    color: var(--sage-900);
     font-size: 2.5em;
     margin-bottom: 10px;
 }
 
 .subtitle {
-    color: #666;
+    color: var(--text-700);
     font-size: 1.1em;
 }
 
@@ -60,18 +92,18 @@ h1 {
 }
 
 .upload-box {
-    border: 3px dashed #667eea;
-    border-radius: 15px;
+    border: 3px dashed var(--sage-300);
+    border-radius: var(--radius-md);
     padding: 60px 20px;
     text-align: center;
-    background: #f8f9ff;
+    background: var(--sage-50);
     transition: all 0.3s ease;
     cursor: pointer;
 }
 
 .upload-box:hover {
-    border-color: #764ba2;
-    background: #f0f2ff;
+    border-color: var(--sage-500);
+    background: var(--sand-50);
     transform: translateY(-5px);
 }
 
@@ -97,12 +129,12 @@ h1 {
 }
 
 .upload-box h3 {
-    color: #333;
+    color: var(--text-900);
     font-size: 1.5em;
 }
 
 .upload-box p {
-    color: #666;
+    color: var(--text-700);
 }
 
 /* Buttons */
@@ -110,32 +142,32 @@ button {
     border: none;
     padding: 15px 40px;
     font-size: 1.1em;
-    border-radius: 50px;
+    border-radius: 999px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: bold;
 }
 
 .btn-select {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--sage-700) 0%, var(--sage-500) 100%);
+    color: var(--white);
 }
 
 .btn-select:hover {
     transform: scale(1.05);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-detect {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--sage-900) 0%, var(--sage-700) 100%);
+    color: var(--white);
     width: 100%;
     margin-top: 20px;
 }
 
 .btn-detect:hover {
     transform: scale(1.02);
-    box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-detect:disabled {
@@ -145,13 +177,19 @@ button {
 }
 
 .btn-reset {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--sand-100) 0%, var(--sage-100) 100%);
+    color: var(--sage-900);
 }
 
 .btn-reset:hover {
     transform: scale(1.05);
-    box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+    box-shadow: var(--shadow-md);
+}
+
+/* Focus states for accessibility */
+button:focus-visible, .upload-box:focus-visible {
+    outline: 3px solid var(--sage-500);
+    outline-offset: 2px;
 }
 
 /* Preview Section */
@@ -172,7 +210,7 @@ button {
 }
 
 #previewSection h3 {
-    color: #333;
+    color: var(--text-900);
     margin-bottom: 15px;
 }
 
@@ -222,10 +260,10 @@ button {
 }
 
 .result-box {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--sage-700) 0%, var(--sage-500) 100%);
+    color: var(--white);
     padding: 40px;
-    border-radius: 15px;
+    border-radius: var(--radius-md);
     text-align: center;
 }
 
@@ -283,7 +321,7 @@ button {
     background: #fff5f5;
     border: 2px solid #fc8181;
     padding: 30px;
-    border-radius: 15px;
+    border-radius: var(--radius-md);
     text-align: center;
 }
 
@@ -307,7 +345,7 @@ footer {
     margin-top: auto;
     padding: 20px;
     text-align: center;
-    color: white;
+    color: var(--sage-900);
 }
 
 /* Responsive */
@@ -328,10 +366,10 @@ footer {
 /* Result Image */
 .result-image-box {
     margin: 20px 0;
-    border-radius: 15px;
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    background: white;
+    box-shadow: var(--shadow-md);
+    background: var(--white);
 }
 
 .result-image-box img {
@@ -341,9 +379,9 @@ footer {
 
 /* Total Value Display */
 .total-value {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.18);
     padding: 30px;
-    border-radius: 15px;
+    border-radius: var(--radius-md);
     margin: 20px 0;
     backdrop-filter: blur(10px);
 }
@@ -367,9 +405,9 @@ footer {
 
 /* Coin Breakdown */
 .coin-breakdown {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.18);
     padding: 20px;
-    border-radius: 15px;
+    border-radius: var(--radius-md);
     margin: 20px 0;
     backdrop-filter: blur(10px);
 }
@@ -386,9 +424,9 @@ footer {
 }
 
 .coin-item {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.28);
     padding: 15px 20px;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -445,11 +483,11 @@ footer {
 
 /* Info Box - คำเตือนเวลารอ */
 .info-box {
-    background: #fff3e0;
-    border-left: 4px solid #ff9800;
+    background: #fff5e5;
+    border-left: 4px solid #e2b23a;
     padding: 15px;
     margin: 20px 0;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     animation: fadeIn 0.5s ease;
 }
 

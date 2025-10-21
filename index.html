@@ -13,99 +13,104 @@
             <h1>🪙 ระบบนับเหรียญอัตโนมัติ</h1>
             <p class="subtitle">ใช้ AI ตรวจจับและนับเหรียญจากรูปภาพ</p>
         </header>
-
-        <!-- Upload Section -->
-        <div class="upload-section">
-            <div class="upload-box" id="uploadBox">
-                <input type="file" id="imageInput" accept="image/*" hidden>
-                <div class="upload-content">
-                    <div class="upload-icon">📤</div>
-                    <h3>เลือกรูปภาพเหรียญ</h3>
-                    <p>รองรับไฟล์ JPG, PNG, JPEG</p>
-                    <button class="btn-select" onclick="document.getElementById('imageInput').click()">
-                        เลือกไฟล์
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Preview Section -->
-        <div id="previewSection" style="display: none;">
-            <h3>🖼️ ภาพที่เลือก:</h3>
-            <div class="preview-box">
-                <img id="previewImage" src="" alt="Preview">
-            </div>
-            
-            <!-- Info Box - คำเตือนเวลารอ -->
-            <div class="info-box">
-                <p style="margin: 0; color: #ff9800; font-size: 0.95em;">
-                    ⏳ <strong>หมายเหตุ:</strong> ครั้งแรกอาจใช้เวลา 30-60 วินาที (รอ Server ตื่น)
-                </p>
-            </div>
-            
-            <button class="btn-detect" onclick="detectCoins()">
-                <span id="btnText">🔍 เริ่มนับเหรียญ</span>
-                <span id="btnLoading" style="display: none;">
-                    <span class="spinner"></span> กำลังประมวลผล...
-                </span>
-            </button>
-        </div>
-
-        <!-- Result Section -->
-        <div id="resultSection" style="display: none;">
-            <div class="result-box">
-                <div class="result-icon">✨</div>
-                <h2>ผลลัพธ์การตรวจจับ</h2>
-                
-                <!-- รูปที่มีกรอบ -->
-                <div class="result-image-box">
-                    <img id="resultImage" src="" alt="Result">
-                </div>
-                
-                <!-- มูลค่ารวม -->
-                <div class="total-value">
-                    <span class="value-label">💰 มูลค่ารวม</span>
-                    <div class="value-amount" id="totalValue">0</div>
-                    <span class="value-unit">บาท</span>
-                </div>
-                
-                <!-- รายละเอียดเหรียญ -->
-                <div class="coin-breakdown">
-                    <h3>🪙 รายละเอียดเหรียญ</h3>
-                    <div class="coin-items">
-                        <div class="coin-item" id="coin1baht">
-                            <span class="coin-emoji">🟡</span>
-                            <span class="coin-label">1 บาท</span>
-                            <span class="coin-count">0 เหรียญ</span>
-                        </div>
-                        <div class="coin-item" id="coin5baht">
-                            <span class="coin-emoji">⚪</span>
-                            <span class="coin-label">5 บาท</span>
-                            <span class="coin-count">0 เหรียญ</span>
-                        </div>
-                        <div class="coin-item" id="coin10baht">
-                            <span class="coin-emoji">🟠</span>
-                            <span class="coin-label">10 บาท</span>
-                            <span class="coin-count">0 เหรียญ</span>
+        <div class="main-grid">
+            <div class="pane pane-left">
+                <!-- Upload Section -->
+                <div class="upload-section">
+                    <div class="upload-box" id="uploadBox">
+                        <input type="file" id="imageInput" accept="image/*" hidden>
+                        <div class="upload-content">
+                            <div class="upload-icon">📤</div>
+                            <h3>เลือกรูปภาพเหรียญ</h3>
+                            <p>รองรับไฟล์ JPG, PNG, JPEG</p>
+                            <button class="btn-select" onclick="document.getElementById('imageInput').click()">
+                                เลือกไฟล์
+                            </button>
                         </div>
                     </div>
                 </div>
-                
-                <button class="btn-reset" onclick="resetPage()">
-                    🔄 นับใหม่อีกครั้ง
-                </button>
-            </div>
-        </div>
 
-        <!-- Error Section -->
-        <div id="errorSection" style="display: none;">
-            <div class="error-box">
-                <div class="error-icon">⚠️</div>
-                <h3>เกิดข้อผิดพลาด</h3>
-                <p id="errorMessage"></p>
-                <button class="btn-reset" onclick="resetPage()">
-                    ลองใหม่อีกครั้ง
-                </button>
+                <!-- Preview Section -->
+                <div id="previewSection" style="display: none;">
+                    <h3>🖼️ ภาพที่เลือก:</h3>
+                    <div class="preview-box">
+                        <img id="previewImage" src="" alt="Preview">
+                    </div>
+                    
+                    <!-- Info Box - คำเตือนเวลารอ -->
+                    <div class="info-box">
+                        <p style="margin: 0; color: #ff9800; font-size: 0.95em;">
+                            ⏳ <strong>หมายเหตุ:</strong> ครั้งแรกอาจใช้เวลา 30-60 วินาที (รอ Server ตื่น)
+                        </p>
+                    </div>
+                    
+                    <button class="btn-detect" onclick="detectCoins()">
+                        <span id="btnText">🔍 เริ่มนับเหรียญ</span>
+                        <span id="btnLoading" style="display: none;">
+                            <span class="spinner"></span> กำลังประมวลผล...
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="pane pane-right">
+                <!-- Result Section -->
+                <div id="resultSection" style="display: none;">
+                    <div class="result-box">
+                        <div class="result-icon">✨</div>
+                        <h2>ผลลัพธ์การตรวจจับ</h2>
+                        
+                        <!-- รูปที่มีกรอบ -->
+                        <div class="result-image-box">
+                            <img id="resultImage" src="" alt="Result">
+                        </div>
+                        
+                        <!-- มูลค่ารวม -->
+                        <div class="total-value">
+                            <span class="value-label">💰 มูลค่ารวม</span>
+                            <div class="value-amount" id="totalValue">0</div>
+                            <span class="value-unit">บาท</span>
+                        </div>
+                        
+                        <!-- รายละเอียดเหรียญ -->
+                        <div class="coin-breakdown">
+                            <h3>🪙 รายละเอียดเหรียญ</h3>
+                            <div class="coin-items">
+                                <div class="coin-item" id="coin1baht">
+                                    <span class="coin-emoji">🟡</span>
+                                    <span class="coin-label">1 บาท</span>
+                                    <span class="coin-count">0 เหรียญ</span>
+                                </div>
+                                <div class="coin-item" id="coin5baht">
+                                    <span class="coin-emoji">⚪</span>
+                                    <span class="coin-label">5 บาท</span>
+                                    <span class="coin-count">0 เหรียญ</span>
+                                </div>
+                                <div class="coin-item" id="coin10baht">
+                                    <span class="coin-emoji">🟠</span>
+                                    <span class="coin-label">10 บาท</span>
+                                    <span class="coin-count">0 เหรียญ</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-reset" onclick="resetPage()">
+                            🔄 นับใหม่อีกครั้ง
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error Section -->
+                <div id="errorSection" style="display: none;">
+                    <div class="error-box">
+                        <div class="error-icon">⚠️</div>
+                        <h3>เกิดข้อผิดพลาด</h3>
+                        <p id="errorMessage"></p>
+                        <button class="btn-reset" onclick="resetPage()">
+                            ลองใหม่อีกครั้ง
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
